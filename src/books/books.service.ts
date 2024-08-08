@@ -3,7 +3,8 @@ import { booksRepository } from './books.repsitory';
 import { getBookDto, booksDto } from './books.dto';
 @Injectable()
 export class BooksService {
-    constructor(private readonly bookRepository: booksRepository) { }
+    constructor(private readonly bookRepository: booksRepository,
+    ) { }
     async getBook({ name, category, edition }: getBookDto) {
         try {
             return this.bookRepository.getBook(name, category, edition)
@@ -45,5 +46,14 @@ export class BooksService {
             throw err
         }
     }
+    // async borrowBook({name,category,edition,rollNo}) {
+    //     try {
+    //         const book = await this.bookRepository.borrowBook(name,category,edition,rollNo)
+    //         return book
+    //     }
+    //     catch (err) {
+    //         throw err
+    //     }
+    // }
    
 }

@@ -1,4 +1,6 @@
 import { Schema, SchemaFactory, Prop } from '@nestjs/mongoose'
+import mongoose, { ObjectId, Types } from 'mongoose'
+import { Books } from 'src/books/books.schema'
 @Schema()
 export class User {
     @Prop()
@@ -28,8 +30,8 @@ export class User {
     address: string
 
 
-    @Prop()
-    booksBorrowed: []
+    @Prop({ type: [{ type: Types.ObjectId, ref: 'Book' }] })
+    booksBorrowed:Types.ObjectId[]
 
 
 }

@@ -1,15 +1,19 @@
-import { BadRequestException, Body, ForbiddenException, HttpCode, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { Request } from 'express'
+import { BadRequestException, Body, ForbiddenException, HttpCode, HttpStatus, Injectable, NotFoundException,  Res, UnauthorizedException } from '@nestjs/common';
+import { Response } from 'express'
 import { adminDto, emailDto } from './admin.dto';
 import { adminRepository } from './adminRepository';
 import * as bcrypt from 'bcrypt';
 import { adminLoginDto } from './admin.loginDto'
 import { getBookDto, booksDto } from 'src/books/books.dto';
 import { BooksService } from 'src/books/books.service';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class AdminService {
     constructor(private readonly adminRepository: adminRepository,
-        private readonly bookService: BooksService
+        private readonly bookService: BooksService,
+        private readonly configService:ConfigService,
+        private readonly jwt:JwtService
     ) { }
     async registerAdmin(body: adminDto) {
         try {
@@ -24,7 +28,7 @@ export class AdminService {
             throw err
         }
     }
-    async login(body: adminLoginDto) {
+    async login(body: adminLoginDto):Promise<string>{
         try {
 
             const adminExists = await this.adminRepository.getAdminData(body.email)
@@ -33,8 +37,8 @@ export class AdminService {
             const passwordMatches = await bcrypt.compare(body.password, adminExists.password)
             if (!passwordMatches)
                 throw new BadRequestException("Incorrect Credientials")
-            return { message: "Login Successfull" }
-
+           const token='Bearer '+await this.jwt.signAsync({userType:"admin",email:body.email},{secret:this.configService.get('JwtSecretKey')})
+           return token
         }
         catch (err) {
             throw err
